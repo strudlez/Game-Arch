@@ -13,28 +13,47 @@ Matrix::Matrix() {
 }
 
 void Matrix::reset() {
-  for(int i=0; i<width-1; i++) {
-    for(int j=0; j<height-1; j++) {
+  for (int i=0; i<width-1; i++) {
+    for (int j=0; j<height-1; j++) {
       data[i][j]=0;
     }
   }
 }
-void Matrix::apply(Vector3* v) {
-  float x,y,z,d;
-  for(int i=0; i<3; i++) {
 
-    d = data[0][i]*v->x + data[1][i]*v->y + data[2][i]*v->z + data[3][i]*v->w;
-    switch(i)
-    {
-      case 0: x = d;break;
-      case 1: y = d;break;
-      case 2: z = d;break;
+Matrix& Matrix::operator =(const Matrix& m) {
+  for (int i = 0; i < width; i++) {
+    for (int j = 0; j < height; j++) {
+      data[i][j] = m.data[i][j];
+    }
+  }
+}
+
+Matrix Matrix::operator *(const Matrix& m) const {
+  Matrix ret;
+  float d;
+
+  for(int i = 0; i < width; i++) {
+    for(int j = 0; j < height; j++) {
+      ret.data[i][j] = data[0][i] * m.data[j][0] +
+          data[1][i] * m.data[j][1] +
+          data[2][i] * m.data[j][2] +
+          data[3][i] * m.data[j][3];
     }
   }
 
-  v->x = x;
-  v->y = y;
-  v->z = z;
+  return ret;
+}
+
+Matrix Matrix::operator *(const Matrix* m) const {
+  operator *(*m);
+}
+
+Matrix& Matrix::operator +=(const Matrix& m) {
+  for(int i = 0; i < width; i++) {
+    for(int j = 0; j < height; j++) {
+      data[i][j] += m.data[i][j];
+    }
+  }
 }
 
 void Matrix::translateX(float x) {
@@ -121,7 +140,7 @@ void Matrix::translateXYZ(float x, float y, float z) {
   data[3][1] = y;
   data[3][2] = z;
 }
-void Matrix::translateXYZ(Vector3 v) {
+void Matrix::translateXYZ(const Vector3& v) {
   Matrix::translateXYZ(v.x, v.y, v.z);
 }
 
@@ -133,5 +152,52 @@ void Matrix::print() {
       if(j<width-1) cout<<"\t";
     }
     cout<<"]\n";
+  }
+
+}
+
+Quaternion Matrix::toQuat() {
+  Quaternion quat;
+
+  float q[4];
+  int nxt[3];
+
+  nxt[0] = 1;
+  nxt[1] = 2;
+
+  float trace = data[0][0] + data[1][1] + data[2][2];
+
+  if (trace>0) {
+    float s = sqrt(trace + 1);
+    quat.w = s / 2;
+    s = 0.5f / s;
+
+    quat.x = (data[2][1] - data[1][2]) * s;
+    quat.y = (data[0][2] - data[2][0]) * s;
+    quat.z = (data[1][0] - data[0][1]) * s;
+
+    return quat;
+  } else {
+    int i = 0;
+
+    if (data[1][1] > data[0][0]) i = 1;
+    if (data[2][2] > data[i][i]) i = 2;
+
+    int j = nxt[i];
+    int k = nxt[j];
+
+    float s = sqrt((data[i][i] - (data[j][j] + data[k][k])) + 1);
+    q[i] = s * 0.5f;
+    if( s != 0) s = 0.5f / s;
+
+    quat.w = (data[j][k] - data[k][j]) * s;
+    q[j] = (data[i][j] + data[j][i]) * s;
+    q[k] = (data[i][k] + data[k][i]) * s;
+
+    quat.x = q[0];
+    quat.y = q[1];
+    quat.z = q[2];
+
+    return quat;
   }
 }

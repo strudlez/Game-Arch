@@ -7,18 +7,12 @@
 Cube::Cube() {
   mat = new Matrix();
   data = (Point*) malloc(8*sizeof(Vector3));
-  for(int i=0; i<8; i++)
-  {
-    data[i] = Point();
-  }
+
+  for(int i=0; i<8; i++) data[i] = Point();
 }
 
-void Cube::apply(Matrix* m)
-{
-  for(int i=0; i<8; i++)
-  {
-    m->apply(data+i);
-  }
+void Cube::apply(Matrix* m) {
+  for(int i=0; i<8; i++) data[i] *= m;
 }
 
 void Cube::reset() {
@@ -95,10 +89,7 @@ void Cube::transformXYZHPRS(float x, float y, float z,
 }
 
 void Cube::print() {
-  for(int i=0; i<8; i++)
-  {
-    data[i].print();
-  }
+  for(int i=0; i<8; i++) data[i].print();
 }
 void Cube::printMat() {
   mat->print();
