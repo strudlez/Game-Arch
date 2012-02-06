@@ -1,11 +1,14 @@
 #pragma once
 
-#include"matrix.h"
-#include"point.h"
+#include "matrix.h"
+#include "quaternion.h"
+#include "point.h"
 
 class Cube {
  public:
   Point* data;
+  Matrix* mat;
+  Quaternion quat;
 
   Cube();
 
@@ -26,7 +29,4 @@ class Cube {
   void rotateHPR(float h, float p, float r);
   void transformXYZHPRS(float x, float y, float z,
       float h, float p, float r, float s);
-
- protected:
-  Matrix* mat;
 };

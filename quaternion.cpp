@@ -25,6 +25,14 @@ Quaternion& Quaternion::operator =(const Quaternion& b) {
   w = b.w;
 }
 
+Quaternion Quaternion::operator +(const Quaternion& b) const {
+  Quaternion ret;
+  ret.x = x + b.x;
+  ret.y = y + b.y;
+  ret.z = z + b.z;
+  ret.w = w + b.w;
+}
+
 Quaternion Quaternion::operator *(const Quaternion& b) const {
   Quaternion ret;
   ret.x = x*b.w + w*b.x + y*b.z - z*b.y;
@@ -43,6 +51,13 @@ Quaternion Quaternion::operator *(float b) const {
   ret.w = w * b; 
 
   return ret;
+}
+
+Quaternion& Quaternion::operator +=(const Quaternion& b) {
+  x += b.x;
+  y += b.y;
+  z += b.z;
+  w += b.w;
 }
 
 Quaternion& Quaternion::operator *=(const Quaternion& b) {
@@ -64,31 +79,15 @@ Quaternion& Quaternion::operator *=(float f) {
   w *= f;
 }
 
-Matrix Quaternion::slerp(const Quaternion& q, float b) {
-  Quaternion ret, temp;
-  float wP, wQ, a, sinA;
-
-  /*a = acos(p.dot(q));
-
-  sinA = sin(a);
-
-  wP = sin((1 - b) * a) / sinA;
-  wQ = sin(b * a) / sinA;
-
-  temp = q * wQ;*/
-
-  /*ret = this * wP;
-  ret += temp;
-
-  return ret;*/
+float Quaternion::dot(const Quaternion& b) const {
+  return x*b.x + y*b.y + z*b.z + w*b.w;
 }
 
-
-Matrix Quaternion::slerp(const Matrix& q, float b) {
+Matrix Quaternion::slerp(const Quaternion& p, const Quaternion& q, float b) {
   Quaternion ret, temp;
   float wP, wQ, a, sinA;
 
-  /*a = acos(p.dot(q));
+  a = acos(p.dot(q));
 
   sinA = sin(a);
 
@@ -96,13 +95,23 @@ Matrix Quaternion::slerp(const Matrix& q, float b) {
   wQ = sin(b * a) / sinA;
 
   temp = q * wQ;
+
   ret = p * wP;
   ret += temp;
 
-  return ret;*/
+  return ret.toMatrix();
 }
 
-Matrix Quaternion::toMatrix() {
+Matrix Quaternion::slerp(const Quaternion& q, float b) {
+  return slerp(*this, q, b);
+}
+
+
+Matrix Quaternion::slerp(const Matrix& q, float b) {
+  return slerp(*this, q.toQuat(), b);
+}
+
+Matrix Quaternion::toMatrix() const {
   Matrix ret;
 
   float xy, xz, xw, yy, yz, yw, zw;

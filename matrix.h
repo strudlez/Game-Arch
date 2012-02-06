@@ -1,7 +1,7 @@
 #pragma once
 
-#include"vector3.h"
-#include"quaternion.h"
+#include "vector3.h"
+#include "quaternion.h"
 
 class Quaternion;
 class Vector3;
@@ -35,7 +35,11 @@ class Matrix {
   void rotateHPR(float h, float p, float r);
   void transformXYZHPRS(float x, float y, float z,
       float h, float p, float r, float s);
-  Quaternion toQuat();
+  Quaternion toQuat() const;
+  
+  Matrix slerp(const Matrix& p, const Matrix& q, float b);
+  Matrix slerp(const Quaternion& q, float b);
+  Matrix slerp(const Matrix& q, float b);
 
  protected:
   int width, height;

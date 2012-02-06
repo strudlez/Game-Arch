@@ -1,8 +1,10 @@
-#include<stdlib.h>
-#include"cube.h"
-#include"matrix.h"
-#include"point.h"
-#include<iostream>
+#include <stdlib.h>
+#include <iostream>
+
+#include "cube.h"
+#include "matrix.h"
+#include "point.h"
+#include "quaternion.h"
 
 Cube::Cube() {
   mat = new Matrix();

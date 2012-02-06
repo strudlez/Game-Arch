@@ -1,7 +1,8 @@
-#include<stdlib.h>
-#include<math.h>
-#include"matrix.h"
-#include<iostream>
+#include <stdlib.h>
+#include <iostream>
+#include <math.h>
+
+#include "matrix.h"
 
 using namespace std;
 
@@ -156,7 +157,7 @@ void Matrix::print() {
 
 }
 
-Quaternion Matrix::toQuat() {
+Quaternion Matrix::toQuat() const {
   Quaternion quat;
 
   float q[4];
@@ -200,4 +201,16 @@ Quaternion Matrix::toQuat() {
 
     return quat;
   }
+}
+
+Matrix Matrix::slerp(const Matrix& p, const Matrix& q, float b) {
+  return p.toQuat().slerp(q.toQuat(), b);
+}
+
+Matrix Matrix::slerp(const Quaternion& q, float b) {
+  return this->toQuat().slerp(q, b);
+}
+
+Matrix Matrix::slerp(const Matrix& q, float b) {
+  return this->toQuat().slerp(q.toQuat(), b);
 }
