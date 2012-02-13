@@ -27,5 +27,5 @@ class Quaternion {
   Matrix slerp(const Matrix& q, float b);
   Matrix toMatrix() const;
 
-  void print();
+  void print() const;
 };

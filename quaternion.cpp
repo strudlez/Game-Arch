@@ -11,8 +11,8 @@ void Quaternion::set(float nX, float nY, float nZ, float nW) {
   w = nW;
 }
 
-void Quaternion::print() { 
-  cout<<"("<<x<<", "<<y<<", "<<z<<", "<<w<<")\n";
+void Quaternion::print() const { 
+  cout << "(" << x << ", " << y << ", " << z << ", " << w << ")\n";
 }
 
 Quaternion& Quaternion::operator =(const Quaternion* b) {
@@ -86,10 +86,8 @@ float Quaternion::dot(const Quaternion& b) const {
 Matrix Quaternion::slerp(const Quaternion& p, const Quaternion& q, float b) {
   Quaternion ret, temp;
   float wP, wQ, a, sinA;
-
+  
   a = acos(p.dot(q));
-
-  sinA = sin(a);
 
   wP = sin((1 - b) * a) / sinA;
   wQ = sin(b * a) / sinA;

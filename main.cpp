@@ -7,6 +7,8 @@
 #include <iostream>
 #include <stdlib.h>
 
+#define DEBUG 0
+
 using namespace std;
 
 int main()
@@ -52,59 +54,36 @@ int main()
       }
     }
 
-    if (!strcmp(fun, "help")) {
-      cout<<"Commands:"<<endl;
-      cout<<"\ttranslateX [x]\n";
-      cout<<"\ttranslateY [y]\n";
-      cout<<"\ttranslateZ [z]\n";
-      cout<<"\trotateH [h]\n";
-      cout<<"\trotateP [p]\n";
-      cout<<"\trotateR [r]\n";
-      cout<<"\tscale [s]\n";
-      cout<<"\trotateHPR [h] [p] [r]\n";
-      cout<<"\ttranslateXYZ [x] [y] [z]\n";
-      cout<<"\ttransformXYZHPRS [x] [y] [z] [h] [p] [r] [s]\n";
-      cout<<"\tslerp_mat [0,0] [1,0] [2,0] [0,1] [1,1] [2,1] "<<
-          "[0,2] [1,2] [2,2] B\n";
-      cout<<"\tslerp_quat [q1] [q2] [q3] [q0] B\n";
-      continue;
-    }
     
-    else if (!strcmp(fun, "reset")) {
+    
+    if (!strcmp(fun, "reset")) {
       c.reset();
-    }
-    else if (!strcmp(fun, "translateX") && len>=1) {
+    } else if (!strcmp(fun, "translateX") && len>=1) {
       c.translateX(params[0]);
-    }
-    else if (!strcmp(fun, "translateY") && len>=1) {
+    } else if (!strcmp(fun, "translateY") && len>=1) {
       c.translateY(params[0]);
-    }
-    else if (!strcmp(fun, "translateZ") && len>=1) {
+    } else if (!strcmp(fun, "translateZ") && len>=1) {
       c.translateZ(params[0]);
-    }
-    else if (!strcmp(fun, "rotateH") && len>=1) {
+    } else if (!strcmp(fun, "rotateH") && len>=1) {
       c.rotateH(params[0]);
-    }
-    else if (!strcmp(fun, "rotateP") && len>=1) {
+    } else if (!strcmp(fun, "rotateP") && len>=1) {
       c.rotateP(params[0]);
-    }
-    else if (!strcmp(fun, "rotateR") && len>=1) {
+    } else if (!strcmp(fun, "rotateR") && len>=1) {
       c.rotateR(params[0]);
     }
     else if (!strcmp(fun, "scale") && len>=1) {
       c.scale(params[0]);
-    }
-    else if (!strcmp(fun, "rotateHPR") && len>=3) {
+    } else if (!strcmp(fun, "rotateHPR") && len>=3) {
       c.rotateHPR(params[0], params[1], params[2]);
-    }
-    else if (!strcmp(fun, "translateXYZ") && len>=3) {
+    } else if (!strcmp(fun, "translateXYZ") && len>=3) {
       c.translateXYZ(params[0], params[1], params[2]);
-    }
-    else if (!strcmp(fun, "transformXYZHPRS") && len>=7) {
+    } else if (!strcmp(fun, "transformXYZHPRS") && len>=7) {
       c.transformXYZHPRS(params[0], params[1], params[2],
           params[3], params[4], params[5], params[6]);
-    }
-    else if (!strcmp(fun, "slerp_mat") && len>=10) {
+    } else if (!strcmp(fun, "toQuat")) {
+      c.mat->toQuat().print();
+      continue;
+    } else if (!strcmp(fun, "slerp_mat") && len>=10) {
       Matrix m;
       m.data[0][0] = params[0];
       m.data[1][0] = params[1];
@@ -115,19 +94,39 @@ int main()
       m.data[0][2] = params[6];
       m.data[1][2] = params[7];
       m.data[2][2] = params[8];
-      *c.mat = m.slerp(*(c.mat), params[9]);
-    }
-    else if (!strcmp(fun, "slerp_quat") && len>=5) {
+      m.slerp(*(c.mat), params[9]).print();
+      continue;
+    } else if (!strcmp(fun, "slerp_quat") && len>=5) {
       Quaternion q;
       q.x = params[0];
       q.y = params[1];
       q.z = params[2];
       q.w = params[3];
 
-      *c.mat = q.slerp(*(c.mat), params[4]);
+      q.slerp(*(c.mat), params[4]).print();
+      continue;
+    } else if (strcmp(fun, "display")) {
+      cout << "Commands:\n" <<
+          "\treset\n" <<
+          "\tdisplay\n" <<
+          "\ttranslateX [x]\n" <<
+          "\ttranslateY [y]\n" <<
+          "\ttranslateZ [z]\n" <<
+          "\trotateH [h]\n" <<
+          "\trotateP [p]\n" <<
+          "\trotateR [r]\n" <<
+          "\tscale [s]\n" <<
+          "\trotateHPR [h] [p] [r]\n" <<
+          "\ttranslateXYZ [x] [y] [z]\n" <<
+          "\ttransformXYZHPRS [x] [y] [z] [h] [p] [r] [s]\n" <<
+          "\ttoQuat\n" <<
+          "\tslerp_mat [0,0] [1,0] [2,0] [0,1] [1,1] [2,1] " <<
+              "[0,2] [1,2] [2,2] B\n" <<
+          "\tslerp_quat [q1] [q2] [q3] [q0] B\n";
+      continue;
     }
 
-    cout<<"\n\n";
+    cout<<"\n";
     c.print();
     c.printMat();
     cout<<"\n";
