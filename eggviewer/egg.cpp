@@ -1,4 +1,5 @@
 #include "egg.h"
+#include "vertex.h"
 
 #include <stdlib.h>
 #include <string>
