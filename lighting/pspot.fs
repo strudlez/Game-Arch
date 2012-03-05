@@ -26,16 +26,6 @@ const float spotCutoff = 0.984807753012208; //cos(radians(10)); //cosine of angl
 const vec3 LightDirection = vec3(0.0, 0.0, -1.0);
 const float spotExponent = 1.0;
 
-const float xyCutoff = 0.1;
-
-const mat3 RotationH = mat3(
-    0.0, -1.0, 0.0,
-    1.0,  0.0, 0.0,
-    0.0,  0.0, 1.0);
-const mat3 RotationP = mat3(
-    0.0,  0.0, 1.0,
-    0.0,  1.0, 0.0,
-   -1.0,  0.0, 0.0);
 void main(void)
 {
     float pf=0.0; //power factor
@@ -51,17 +41,7 @@ void main(void)
     {
         //see if point on surface is inside cone of illumination
         float spotDot = dot(-VP, normalize(LightDirection));
-        vec3 normalLight = normalize(LightDirection);
-        vec3 c = cross(-VP, normalLight);
-
-        vec3 LightH = normalize(RotationH * LightDirection);
-        vec3 LightP = normalize(RotationP * LightDirection);
-
-        float hDot = dot(-VP, LightH);
-        float pDot = dot(-VP, LightP);
-
         if (spotDot > spotCutoff)
-          //pow(hDot/xyCutoff, 2) + pow(pDot/xyCutoff, 2) >= 1)
         {
             spotAttenuation = pow(spotDot, spotExponent);
             //compute attenuation

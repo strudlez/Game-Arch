@@ -6,6 +6,8 @@ in float d;
 in vec3 HV;
 in vec3 VP;
 in vec3 tnorm;
+in vec3 lightPos;
+in vec3 ecPos;
 
 uniform sampler2D s_tex;
 uniform mat4 ModelMatrix;
@@ -24,18 +26,14 @@ const float quadraticAttenuation = 0.0;
 const float shininess = 50; //can be as high as 128 - bigger number = more concentrated bright spot
 const float spotCutoff = 0.984807753012208; //cos(radians(10)); //cosine of angle for spot cone
 const vec3 LightDirection = vec3(0.0, 0.0, -1.0);
+const vec3 LightForward = vec3(1.0, 0.0, 0.0);
+const vec3 LightSide = vec3(0.0, 1.0, 0.0);
 const float spotExponent = 1.0;
 
-const float xyCutoff = 0.1;
+const float edgeWidth = 0.3;
 
-const mat3 RotationH = mat3(
-    0.0, -1.0, 0.0,
-    1.0,  0.0, 0.0,
-    0.0,  0.0, 1.0);
-const mat3 RotationP = mat3(
-    0.0,  0.0, 1.0,
-    0.0,  1.0, 0.0,
-   -1.0,  0.0, 0.0);
+const float round = 4;
+
 void main(void)
 {
     float pf=0.0; //power factor
@@ -49,21 +47,21 @@ void main(void)
     nDotVP = max(dot(n,normalize(VP)),0.0);
     if (nDotVP > 0)
     {
-        //see if point on surface is inside cone of illumination
         float spotDot = dot(-VP, normalize(LightDirection));
-        vec3 normalLight = normalize(LightDirection);
-        vec3 c = cross(-VP, normalLight);
-
-        vec3 LightH = normalize(RotationH * LightDirection);
-        vec3 LightP = normalize(RotationP * LightDirection);
-
-        float hDot = dot(-VP, LightH);
-        float pDot = dot(-VP, LightP);
-
-        if (spotDot > spotCutoff)
-          //pow(hDot/xyCutoff, 2) + pow(pDot/xyCutoff, 2) >= 1)
+        float twoD = 2/round;
+        float xDot = dot(-VP, normalize(LightSide));
+        float yDot = dot(-VP, normalize(LightForward));
+        float dist = pow(abs(xDot)/spotCutoff, twoD) + pow(abs(yDot)/spotCutoff, twoD);
+        float innerEdge = pow(spotCutoff/10, twoD);
+        float outerEdge = pow((spotCutoff + edgeWidth)/10, twoD);
+        if (dist < outerEdge)
         {
-            spotAttenuation = pow(spotDot, spotExponent);
+            if(dist < innerEdge) {
+              spotAttenuation = pow(spotDot, spotExponent);
+            } else {
+              spotAttenuation = pow((outerEdge - dist)/(outerEdge - innerEdge), spotExponent);
+            }
+
             //compute attenuation
             attenuation = spotAttenuation / (constantAttenuation +
                                 linearAttenuation * d +

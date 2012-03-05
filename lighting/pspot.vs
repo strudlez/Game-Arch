@@ -17,10 +17,12 @@ out vec3 HV;
 out vec3 VP;
 out float d;
 out vec3 tnorm;
+out vec3 lightPos;
+out vec3 ecPos;
 
 void main(void)
 {   
-    vec3 ecPos = (ViewMatrix * ModelMatrix * in_Position).xyz;
+    ecPos = (ViewMatrix * ModelMatrix * in_Position).xyz;
     vec3 eye = -normalize(ecPos);
     tnorm = normalize(NormalMatrix * in_Normal);
 
@@ -31,8 +33,9 @@ void main(void)
     //normalize VP (aux)
     VP = normalize(VP);
     HV = normalize(VP + eye);
-  vec3 p = in_Position.xyz;        // original position
-  gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4( p, 1.0 );
 
-  v_tex = in_Tex;
+    lightPos = LightPosition;
+
+	gl_Position = (ProjectionMatrix * ViewMatrix * ModelMatrix) * in_Position;
+	v_tex = in_Tex;
 }
