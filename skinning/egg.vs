@@ -21,14 +21,6 @@ void main( void )
 
     ivec4 joint_ind = ivec4(in_joint);
 
-    int num = -1;
-    float w = 0;
-    for(int i = 0; i < 4; i++) {
-      if(in_weight[i] > w) {
-        w = in_weight[i];
-        num = i;
-      }
-    }
     for (int i = 0; i < 4; i++)
     {
       int ind = joint_ind[i];
@@ -37,7 +29,14 @@ void main( void )
       vec4 add = mat * pos * weight;
       anim += add;
     }
-    if(in_weight[0] == 0.0f) anim = pos;
+
+    if(anim.w == 0) {
+      anim = Joints[0] * pos;
+    }
+    //Scale
+    anim.w = 1;
+
+    //if(in_weight[0] == 0.0f) anim = pos;
     //anim = pos;
 
   // continue the transformation.

@@ -191,7 +191,14 @@ void game_loop(void) {
 void collectJoints() {
   long unsigned int minLen = min(model->jointList.size(), JOINT_LIMIT);
   for (int i = 0; i < minLen; i++) {
-    Joints[i] = glm::make_mat4(model->jointList[i]->worldMat.data);
+    Joints[i] = glm::make_mat4x4(model->jointList[i]->worldMat.data);
+
+    /*
+    printf("%f %f %f %f\n",Joints[i][0][0], Joints[i][1][0],Joints[i][2][0],Joints[i][3][0]);
+    printf("%f %f %f %f\n",Joints[i][0][1], Joints[i][1][1],Joints[i][2][1],Joints[i][3][1]);
+    printf("%f %f %f %f\n",Joints[i][0][2], Joints[i][1][2],Joints[i][2][2],Joints[i][3][2]);
+    printf("%f %f %f %f\n\n\n",Joints[i][0][3], Joints[i][1][3],Joints[i][2][3],Joints[i][3][3]);
+    */
   }
 }
 
@@ -254,6 +261,7 @@ void CreateModel(char* file, char* animation) {
   if(animation != NULL) {
     model->readFile(animation);
   }
+    collectJoints();
 
   ShaderIds[0] = glCreateProgram();
   printf("%d\n",ShaderIds[0]);
@@ -311,27 +319,27 @@ void CreateModel(char* file, char* animation) {
       &model->vertices[0], GL_STATIC_DRAW);
   OnGLError("ERROR: Could not bind the VBO to the VAO");
 
+  //Position
   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 
       sizeof(model->vertices[0]), (GLvoid*)0);
 
   size_t offset = sizeof(model->vertices[0].Position);
 
+  //UV
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 
       sizeof(model->vertices[0]),
       (GLvoid*)offset);
 
   offset+= sizeof(model->vertices[0].UV);
 
-  for (int i = 0; i < model->vertices.size(); i++) {
-    printf("FIRST: %f : %f\n",model->vertices[i].joints[0], model->vertices[i].jointInfluence[0]);
-  }
-
+  //Joint list
   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 
       sizeof(model->vertices[0]),
       (GLvoid*)offset);
   
   offset+= sizeof(model->vertices[0].joints);
   
+  //Joint weight
   glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 
       sizeof(model->vertices[0]),
       (GLvoid*)offset);
@@ -380,6 +388,21 @@ void DestroyModel() {
 }
 
 void DrawModel(void) {
+
+  for(int i = 0; i < model->vertices.size(); i++) {
+    float w = 0;
+    for(int j =0;j<4;j++) {
+      w += model->vertices[i].jointInfluence[j];
+    }
+    /*if(w<0.99) {
+    //if(model->vertices[i].jointNum == 0) {
+      printf("%d: %f - %f,%f,%f,%f\n",i,w,
+          model->vertices[i].Position[0],
+          model->vertices[i].Position[1],
+          model->vertices[i].Position[2],
+          model->vertices[i].Position[3]);
+    }*/
+  }
   ModelMatrix = glm::mat4(1.0f);
   
   ModelMatrix = glm::rotate(ModelMatrix, ModelYaw, glm::vec3(0, 1, 0)); //rotateH

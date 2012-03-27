@@ -1,6 +1,7 @@
 #include <vector>
 #include <cstddef>
 #include <iostream>
+#include <math.h>
 #include "Joint.h"
 
 using namespace std;
@@ -22,8 +23,6 @@ void Joint::calculateFrames() {
   maxFrame = max(maxFrame, hList.size());
   maxFrame = max(maxFrame, pList.size());
   maxFrame = max(maxFrame, rList.size());
-
-  //cout<<"Max frame: "<<maxFrame<<endl;
 }
 
 void Joint::addChild(Joint* j) {
@@ -40,24 +39,28 @@ void Joint::runJoint(Matrix& math, float dt) {
     frame = 0;
   }
 
+  float f = floor(frame);
+  
+  //cout<<"Joint "<<num<<": "<<f<<" Max: "<<maxFrame<<endl;
+
   if (xList.size() > 0)
-    xNew = frame/fps*xList.size();
+    xNew = f/fps*xList.size();
   if (yList.size() > 0)
-    yNew = frame/fps*yList.size();
+    yNew = f/fps*yList.size();
   if (zList.size() > 0)
-    zNew = frame/fps*zList.size();
+    zNew = f/fps*zList.size();
 
   if (hList.size() > 0)
-    hNew = frame/fps*hList.size();
+    hNew = f/fps*hList.size();
   if (pList.size() > 0)
-    pNew = frame/fps*pList.size();
+    pNew = f/fps*pList.size();
   if (rList.size() > 0)
-    rNew = frame/fps*rList.size();
+    rNew = f/fps*rList.size();
 
   //Animation needs to be updated
-  if (1) {
-    //(xN != xNew || yN != yNew || zN != zNew || hN != hNew || pN != pNew ||
-      //rN != rNew) {
+  if (parent != NULL &&
+      (xN != xNew || yN != yNew || zN != zNew || hN != hNew || pN != pNew ||
+      rN != rNew)) {
     localMat.reset();
     xN = xNew;
     yN = yNew;
@@ -69,28 +72,36 @@ void Joint::runJoint(Matrix& math, float dt) {
     if(xN != -1) x = xList[xN];
     if(yN != -1) y = yList[xN];
     if(zN != -1) z = zList[xN];
-    localMat.translateXYZ(x,y,z);
+    if(hN != -1) h = hList[hN];
+    if(pN != -1) p = pList[pN];
+    if(rN != -1) r = rList[rN];
+    
+    localMat.data[0] = 1;
+    localMat.data[5] = 1;
+    localMat.data[10] = 1;
+    localMat.data[15] = 1;
 
-    if(hN != -1) {
-      math.rotateH(hList[hN]);
-      localMat = math*localMat;
-    }
-    if(pN != -1) {
-      math.rotateH(pList[pN]);
-      localMat = math*localMat;
-    }
-    if(rN != -1) {
-      math.rotateH(rList[rN]);
-      localMat = math*localMat;
-    }
+    math.rotateH(h);
+    localMat = math*localMat;
+
+    math.rotateH(p);
+    localMat = math*localMat;
+
+    math.rotateH(r);
+    localMat = math*localMat;
+    
+    math.translateXYZ(x,y,z);
+    localMat = math * localMat;
   }
 
   if (parent != NULL) {
-    //cout<<num<<" "<<parent->num<<" "<<parent->fps<<endl;
-    worldMat = parent->worldMat*localMat;
+    worldMat = localMat * parent->worldMat;
   } else {
-    //worldMat.reset();
-    worldMat = localMat;
+    worldMat.reset();
+    worldMat.data[0] = 1;
+    worldMat.data[5] = 1;
+    worldMat.data[10] = 1;
+    worldMat.data[15] = 1;
   }
   for (int i = 0; i < children.size(); i++) {
     children[i]->runJoint(math, dt);

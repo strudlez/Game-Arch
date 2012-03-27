@@ -14,10 +14,11 @@ Matrix::Matrix() {
 }
 
 void Matrix::reset() {
-  for (int i=0; i<width-1; i++) {
-    for (int j=0; j<height-1; j++) {
+  for (int i=0; i<width; i++) {
+    for (int j=0; j<height; j++) {
       data[i*height+j]=0;
     }
+    data[15] = 1;
   }
 }
 
@@ -35,10 +36,11 @@ Matrix Matrix::operator *(const Matrix& m) const {
 
   for(int i = 0; i < width; i++) {
     for(int j = 0; j < height; j++) {
-      ret.data[i*height+j] = data[i] * m.data[j*width] +
-          data[width+i] * m.data[j*height+1] +
-          data[2*height+i] * m.data[j*height+2] +
-          data[3*height+i] * m.data[j*height+3];
+      ret.data[i*height+j] = 
+          data[0*height+j] * m.data[i*height] +
+          data[1*height+j] * m.data[i*height+1] +
+          data[2*height+j] * m.data[i*height+2] +
+          data[3*height+j] * m.data[i*height+3];
     }
   }
 
@@ -73,18 +75,22 @@ void Matrix::rotateH(float h) {
   data[0] = 1;
   data[1] = 0;
   data[2] = 0;
+  data[3] = 0;
   
   data[height] = 0;
   data[height+1] = ch;
   data[height+2] = sh;
+  data[height+3] = 0;
 
   data[2*height] = 0;
   data[2*height+1] = -sh;
   data[2*height+2] = ch;
+  data[2*height+3] = 0;
 
   data[3*height] = 0;
   data[3*height+1] = 0;
   data[3*height+2] = 0;
+  data[3*height+3] = 1;
 
 
 
@@ -96,19 +102,23 @@ void Matrix::rotateP(float p) {
   data[0] = cp;
   data[1] = 0;
   data[2] = -sp;
+  data[3] = 0;
 
   data[1*height] = 0;
   data[1*height+1] = 1;
   data[1*height+2] = 0;
+  data[height+3] = 0;
 
 
   data[2*height+0] = sp;
   data[2*height+1] = 0;
   data[2*height+2] = cp;
+  data[2*height+3] = 0;
   
   data[3*height+0] = 0;
   data[3*height+1] = 0;
   data[3*height+2] = 0;
+  data[3*height+3] = 1;
 }
 
 void Matrix::rotateR(float r) {
@@ -144,6 +154,7 @@ void Matrix::translateXYZ(float x, float y, float z) {
   data[3*height+0] = x;
   data[3*height+1] = y;
   data[3*height+2] = z;
+  data[3*height+3] = 1;
 }
 void Matrix::translateXYZ(const Vector3& v) {
   Matrix::translateXYZ(v.x, v.y, v.z);

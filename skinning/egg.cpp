@@ -6,6 +6,9 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <math.h>
+
+#define PI 3.14159265358979323846
 
 using namespace std;
 
@@ -127,7 +130,7 @@ void egg::readVertex(ifstream& f) {
   } while(word != "}");
 
   Vertex v;
-  float scale = 0.01;
+  float scale = 1;
   v.Position[0] = x*scale;
   v.Position[1] = y*scale;
   v.Position[2] = z*scale;
@@ -191,14 +194,10 @@ void egg::readJoint(ifstream& f, Joint* parent) {
   Joint* op = NULL;
   string word;
 
-  if (parent == NULL) {
-    op = &jointTree;
-    op->num = 0;
-  } else {
-    op = new Joint();
-    op->num = jointList.size();
-    parent->addChild(op);
-  }
+  if (parent == NULL) parent = &jointTree;
+  op = new Joint();
+  op->num = jointList.size();
+  parent->addChild(op);
   jointList.push_back(op);
   r(f,word);
   map<const string, Joint*>::iterator lb = jointMap.lower_bound(word);
@@ -276,8 +275,8 @@ void egg::readJointVertex(ifstream& f, Joint* j) {
     v->joints[jNum] = j->num;
     v->jointInfluence[jNum] = influence;
     v->jointNum = jNum+1;
-    cout<<"Vertex: "<<ref<<" Num: "<<jNum<<" Joint: "<<v->joints[jNum]
-      <<" Inf: "<<v->jointInfluence[jNum]<<endl;
+    /*cout<<"Vertex: "<<ref<<" Num: "<<jNum<<" Joint: "<<v->joints[jNum]
+      <<" Inf: "<<v->jointInfluence[jNum]<<endl;*/
   }
 }
 
@@ -286,7 +285,7 @@ void egg::readTable(ifstream& f) {
   string word;
   string name;
   r(f, word);
-  if (word == "{") {
+  if (word == "{" || word == "") {
     j = NULL;
   } else {
     name = word;
@@ -344,6 +343,7 @@ void egg::readAnimList(ifstream&f, Joint* j) {
   string word;
   vector<float>* nums = NULL;
   r(f, word);
+  bool rad = false;
   if (word == "x") {
     nums = &(j->xList);
   } else if(word == "y") {
@@ -352,10 +352,13 @@ void egg::readAnimList(ifstream&f, Joint* j) {
     nums = &(j->zList);
   } else if(word == "h") {
     nums = &(j->hList);
+    rad = true;
   } else if(word == "p") {
     nums = &(j->pList);
+    rad = true;
   } else if(word == "r") {
     nums = &(j->rList);
+    rad = true;
   } 
 
   do {
@@ -366,7 +369,11 @@ void egg::readAnimList(ifstream&f, Joint* j) {
         do {
           r(f, word);
           if (word != "}") {
-            nums->push_back(atof(word.c_str()));
+            float f = atof(word.c_str());
+            if (rad) {
+              f = f*PI/180;
+            }
+            nums->push_back(f);
           }
         } while (word != "}");
         word = "";
