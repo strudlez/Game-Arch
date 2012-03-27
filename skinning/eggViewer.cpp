@@ -314,7 +314,7 @@ void CreateModel(char* file, char* animation) {
   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 
       sizeof(model->vertices[0]), (GLvoid*)0);
 
-  size_t offset = sizeof(model->vertices[0]).Position;
+  size_t offset = sizeof(model->vertices[0].Position);
 
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 
       sizeof(model->vertices[0]),
@@ -322,7 +322,11 @@ void CreateModel(char* file, char* animation) {
 
   offset+= sizeof(model->vertices[0].UV);
 
-  glVertexAttribPointer(2, 4, GL_INT, GL_FALSE, 
+  for (int i = 0; i < model->vertices.size(); i++) {
+    printf("FIRST: %f : %f\n",model->vertices[i].joints[0], model->vertices[i].jointInfluence[0]);
+  }
+
+  glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 
       sizeof(model->vertices[0]),
       (GLvoid*)offset);
   

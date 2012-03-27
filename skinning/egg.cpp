@@ -127,7 +127,7 @@ void egg::readVertex(ifstream& f) {
   } while(word != "}");
 
   Vertex v;
-  float scale = 1;
+  float scale = 0.01;
   v.Position[0] = x*scale;
   v.Position[1] = y*scale;
   v.Position[2] = z*scale;
@@ -270,12 +270,14 @@ void egg::readJointVertex(ifstream& f, Joint* j) {
 
   for (int i = 0; i < refs.size(); i++) {
     int ref = refs[i];
-    //cout<<"Vertex: "<<ref<<" Joint: "<<j->num<<" Inf: "<<influence<<endl;
-    int jNum = 0;
-    for(;jNum < 4 && jNum != 0; jNum++);
     //int jNum = vertices[ref].jointNum;
-    vertices[ref].joints[jNum] = j->num;
-    vertices[ref].jointInfluence[jNum] = influence;
+    Vertex* v = &vertices[ref];
+    int jNum = v->jointNum;
+    v->joints[jNum] = j->num;
+    v->jointInfluence[jNum] = influence;
+    v->jointNum = jNum+1;
+    cout<<"Vertex: "<<ref<<" Num: "<<jNum<<" Joint: "<<v->joints[jNum]
+      <<" Inf: "<<v->jointInfluence[jNum]<<endl;
   }
 }
 

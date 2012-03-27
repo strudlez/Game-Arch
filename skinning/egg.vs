@@ -2,7 +2,7 @@
 
 in vec4 in_Position;
 in vec2 in_Tex;
-in ivec4 in_joint;
+in vec4 in_joint;
 in vec4 in_weight;
 
 uniform mat4 ModelMatrix;
@@ -19,15 +19,26 @@ void main( void )
     vec4 anim = vec4 (0, 0, 0, 0);
     vec4 pos = vec4(p, 1.0);
 
+    ivec4 joint_ind = ivec4(in_joint);
+
+    int num = -1;
+    float w = 0;
+    for(int i = 0; i < 4; i++) {
+      if(in_weight[i] > w) {
+        w = in_weight[i];
+        num = i;
+      }
+    }
     for (int i = 0; i < 4; i++)
     {
-      int ind = in_joint[i];
+      int ind = joint_ind[i];
       mat4 mat = Joints[ind];
       float weight = in_weight[i];
       vec4 add = mat * pos * weight;
       anim += add;
     }
     if(in_weight[0] == 0.0f) anim = pos;
+    //anim = pos;
 
   // continue the transformation.
   gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * anim;
