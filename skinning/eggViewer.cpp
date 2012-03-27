@@ -314,17 +314,23 @@ void CreateModel(char* file, char* animation) {
   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 
       sizeof(model->vertices[0]), (GLvoid*)0);
 
+  size_t offset = sizeof(model->vertices[0]).Position;
+
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 
       sizeof(model->vertices[0]),
-      (GLvoid*)sizeof(model->vertices[0].Position));
-  
-  glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 
+      (GLvoid*)offset);
+
+  offset+= sizeof(model->vertices[0].UV);
+
+  glVertexAttribPointer(2, 4, GL_INT, GL_FALSE, 
       sizeof(model->vertices[0]),
-      (GLvoid*)sizeof(model->vertices[0].joints));
+      (GLvoid*)offset);
+  
+  offset+= sizeof(model->vertices[0].joints);
   
   glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 
       sizeof(model->vertices[0]),
-      (GLvoid*)sizeof(model->vertices[0].jointInfluence));
+      (GLvoid*)offset);
   
   OnGLError("ERROR: Could not set VAO attributes");
 
